@@ -4,7 +4,7 @@ var querystring = require("querystring");
 var express = require("express"); // Express web server framework
 var request = require("request"); // "Request" library
 
-const TOKEN = process.env.KEY;
+const TOKEN = process.env.API_KEY;
 const openLDBWS = require('ldbws-json');
 const operation = require('ldbws-json/LDBWSOperation');
 const api = new openLDBWS(TOKEN);
