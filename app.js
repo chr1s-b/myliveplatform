@@ -24,12 +24,13 @@ app.get("/departures", function(req,res) {
 	api.call(operation.GET_DEPARTURE_BOARD, options).then((board) =>{
 		const r = board.GetStationBoardResult;
 		const services = r.trainServices.service;
-		console.log(services);
+		//console.log(services);
 
 		for (s of services) {
 		res.write(`${s.std} ${s.destination.location.locationName} ${s.etd} ${s.platform}`);
 			res.write("<br/>");
 		};
+		res.end("");
 	});
 });
 
