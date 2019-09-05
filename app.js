@@ -19,15 +19,15 @@ app.get("/", function(req,res) {
 app.get("/departures", function(req,res) {
 	res.writeHead(200, {"Content-Type": "text/html"});
 	const station = req.query.station;
+	const n_services = req.query.top || 3;
 	console.log(station);
 	const options = {"crs": station}
 	api.call(operation.GET_DEPARTURE_BOARD, options).then((board) =>{
 		const r = board.GetStationBoardResult;
-		const services = r.trainServices.service;
-		//console.log(services);
-
+		const services = r.trainServices.service.slice(0,n_services);
+		console.log(services);
 		for (s of services) {
-		res.write(`${s.std} ${s.destination.location.locationName} ${s.etd} ${s.platform}`);
+			res.write(`${s.std} ${s.destination.location.locationName} ${s.etd} ${s.platform}`);
 			res.write("<br/>");
 		};
 		res.end("");
