@@ -1,0 +1,40 @@
+<html>
+<head>
+  <script>
+  if (!!window.EventSource) {
+    var source = new EventSource('/departure_stream?'+document.URL.split("?")[1])
+
+    source.addEventListener('message', function(e) {
+	  var d = new Date();
+	  var n = d.toLocaleTimeString();
+	  console.log(e);
+      document.getElementById('board').innerHTML = e.data;
+	  document.getElementById('last_update').innerHTML = n;
+    }, false)
+
+    source.addEventListener('open', function(e) {
+      document.getElementById('state').innerHTML = "Connected"
+    }, false)
+
+    source.addEventListener('error', function(e) {
+      const id_state = document.getElementById('state')
+      if (e.eventPhase == EventSource.CLOSED)
+        source.close()
+      if (e.target.readyState == EventSource.CLOSED) {
+        id_state.innerHTML = "Disconnected"
+      }
+      else if (e.target.readyState == EventSource.CONNECTING) {
+        id_state.innerHTML = "Connecting..."
+      }
+    }, false)
+  } else {
+    console.log("Your browser doesn't support SSE")
+  }
+  </script>
+</head>
+<body>
+  <h1>SSE State: <span id="state"></span></h1>
+  <h2>Last Updated: <span id="last_update"></span></h2>
+  <h3><span id="board"></span></h3>
+</body>
+</html>
