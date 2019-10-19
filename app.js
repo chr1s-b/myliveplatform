@@ -35,8 +35,20 @@ app.get("/signal_stream", function(req,res) {
 	var destination = `/topic/${req.query.area}` //'/topic/TD_WTV_SIG_AREA';	
 	client.connect(function(sessionId) {
 		client.subscribe(destination, function(body, headers) {
-		  console.log('MSG BODY:', body);
-		  res.write(`data: ${req.query.area}&${body}\n\n`);
+		  // process messages
+		  for (msg of JSON.parse(body)) {
+			  msg = msg[Object.keys(msg)[0]];
+			  var d = new Date(0);
+			  d.setUTCSeconds(msg.time);
+			  var time = d.toLocaleTimeString();
+			  if (msg.msg_type == "SF") {
+				res.write(`data: ${req.query.area}&${time} ${msg.msg_type} ${msg.area_id} ${msg.address} ${msg.data}<br/>\n\n`);
+			  } else if (msg.msg_type == "CA") {
+				res.write(`data: ${req.query.area}&${time} ${msg.msg_type} ${msg.area_id} ${msg.descr} FROM ${msg.from} TO ${msg.to}<br/>\n\n`);
+			  }
+			  console.log(msg);
+		  }
+		  //res.write(`data: ${req.query.area}&${body}\n\n`);
 		});
 	});
 });
