@@ -26,6 +26,12 @@ app.get("/signal_stream", function(req,res) {
 		'Cache-Control': 'no-cache',
 		'Connection': 'keep-alive'
 	});
+	if (!req.query.area) {
+		console.log("NULL NULL");
+		res.write("data: undefined&NO DATA\n\n");
+		res.end();
+		return;
+	}
 	var destination = `/topic/${req.query.area}` //'/topic/TD_WTV_SIG_AREA';	
 	client.connect(function(sessionId) {
 		client.subscribe(destination, function(body, headers) {
@@ -58,7 +64,7 @@ function depboard(res, station,n_services) {
 		const r = board.GetStationBoardResult;
 		var services = r.trainServices.service;
 		const loc = r.locationName;
-		if (n_services != null) {
+		if (n_services) {
 			services = services.slice(0,n_services)
 		}
 		var b = `${loc}&<br/>`;
