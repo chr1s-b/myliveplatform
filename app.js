@@ -39,10 +39,12 @@ function depboard(res, station,n_services) {
 	api.call(operation.GET_DEPARTURE_BOARD, options).then((board) =>{
 		const r = board.GetStationBoardResult;
 		const services = r.trainServices.service;
+		const loc = r.locationName;
 		if (n_services != null) {
 			services = services.slice(0,n_services)
 		}
-		var b = `<br/>`;
+		console.log(r);
+		var b = `${loc}&<br/>`;
 		for (s of services) {
 			b = b + `${s.std} ${s.destination.location.locationName} ${s.etd} ${s.platform} <br/>`;
 		};

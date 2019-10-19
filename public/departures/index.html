@@ -8,7 +8,11 @@
 	  var d = new Date();
 	  var n = d.toLocaleTimeString();
 	  console.log(e);
-      document.getElementById('board').innerHTML = e.data;
+	  var loc = e.data.split("&")[0];
+	  var board = e.data.split("&")[1];
+	  window.document.title = loc;
+	  document.getElementById('loc').innerHTML = loc;
+      document.getElementById('board').innerHTML = board;
 	  document.getElementById('last_update').innerHTML = n;
     }, false)
 
@@ -31,10 +35,16 @@
     console.log("Your browser doesn't support SSE")
   }
   </script>
+  <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-  <h1>SSE State: <span id="state"></span></h1>
-  <h2>Last Updated: <span id="last_update"></span></h2>
-  <h3><span id="board"></span></h3>
+	<ul id="header">
+	  <li>SSE State: <span id="state"></span></li>
+	  <li>Location: <span id="loc"></span></li>
+	  <li>Last Updated: <span id="last_update"></span></li>
+	</ul>
+	<div id="content">
+		<h3><span id="board"></span></h3>
+	</div>
 </body>
 </html>
