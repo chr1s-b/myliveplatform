@@ -38,17 +38,16 @@ app.get("/signal_stream", function(req,res) {
 		  // process messages
 		  for (msg of JSON.parse(body)) {
 			  msg = msg[Object.keys(msg)[0]];
-			  var d = new Date(0);
-			  d.setUTCSeconds(msg.time);
-			  var time = d.toLocaleTimeString();
-			  if (msg.msg_type == "SF") {
-				res.write(`data: ${req.query.area}&${time} ${msg.msg_type} ${msg.area_id} ${msg.address} ${msg.data}<br/>\n\n`);
-			  } else if (msg.msg_type == "CA") {
-				res.write(`data: ${req.query.area}&${time} ${msg.msg_type} ${msg.area_id} ${msg.descr} FROM ${msg.from} TO ${msg.to}<br/>\n\n`);
+			  var time = new Date(msg.time*1000);
+			  if (!((req.query.area_id)&&(req.query.area_id!=msg.area_id))) {
+				  if ((msg.msg_type == "SF")&&(!(req.query.type)||(req.query.type==msg.msg_type))) {
+					res.write(`data: ${req.query.area}&${time} ${msg.msg_type} ${msg.area_id} ${msg.address} ${msg.data}<br/>\n\n`);
+				  } else if  ((msg.msg_type == "CA")&&(!(req.query.type)||(req.query.type==msg.msg_type))) {
+					res.write(`data: ${req.query.area}&${time} ${msg.msg_type} ${msg.area_id} ${msg.descr} FROM ${msg.from} TO ${msg.to}<br/>\n\n`);
+				  }
 			  }
 			  console.log(msg);
 		  }
-		  //res.write(`data: ${req.query.area}&${body}\n\n`);
 		});
 	});
 });
@@ -61,7 +60,7 @@ app.get("/departure_stream", function(req,res) {
 	})
 	const station = req.query.station;
 	if (station == null) {
-		res.write("data: no station specified\n\n");
+		res.write("data: NO DATA&NO DATA\n\n");
 		res.end();
 		return
 	}
@@ -79,7 +78,7 @@ function depboard(res, station,n_services) {
 		if (n_services) {
 			services = services.slice(0,n_services)
 		}
-		var b = `${loc}&<br/>`;
+		var b = `${loc}&`;
 		for (s of services) {
 			b = b + `${s.std} ${s.destination.location.locationName} ${s.etd} ${s.platform} <br/>`;
 		};
