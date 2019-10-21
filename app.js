@@ -10,29 +10,50 @@ const operation = require('ldbws-json/LDBWSOperation');
 const api = new openLDBWS(TOKEN);
 
 const app = express();
-app.use(express.static('public'))
 
 var Stomp = require('stomp-client');
 var client = new Stomp('datafeeds.networkrail.co.uk', 61618, process.env.STOMP_USER, process.env.STOMP_PASS);
+
 
 app.get("/", function(req,res) {
 	res.writeHead(200, {"Content-Type": "text/html"});
 	res.end("<h1>Go to /departures</h1>");
 });
 
-app.get("/signal_stream", function(req,res) {
+app.get('/style.css', function(req, res) {
+  res.sendFile("style.css", { root: 'public' });
+});
+
+app.get("/depart/:crs?", function(req, res) {
+	const crs = req.params.crs;
+	if (crs) {
+		res.sendFile("departures.html", { root: 'public' });
+	} else {
+		res.end("no station selected");
+	}
+});
+
+app.get("/signals/:area?", function(req, res) {
+	const area = req.params.area;
+	if (area) {
+		res.sendFile("signals.html", { root: 'public' });
+	} else {
+		res.end("no area selected");
+	}
+});
+
+app.get("/signal_stream/:area", function(req,res) {
 	res.writeHead(200, {
 		'Content-Type': 'text/event-stream',
 		'Cache-Control': 'no-cache',
 		'Connection': 'keep-alive'
 	});
-	if (!req.query.area) {
-		console.log("NULL NULL");
+	if (!req.params.area) {
 		res.write("data: undefined&NO DATA\n\n");
 		res.end();
 		return;
 	}
-	var destination = `/topic/${req.query.area}` //'/topic/TD_WTV_SIG_AREA';	
+	var destination = `/topic/${req.params.area}` //'/topic/TD_WTV_SIG_AREA';	
 	client.connect(function(sessionId) {
 		client.subscribe(destination, function(body, headers) {
 		  // process messages
@@ -41,31 +62,29 @@ app.get("/signal_stream", function(req,res) {
 			  var time = new Date(msg.time*1000);
 			  if (!((req.query.area_id)&&(req.query.area_id!=msg.area_id))) {
 				  if ((msg.msg_type == "SF")&&(!(req.query.type)||(req.query.type==msg.msg_type))) {
-					res.write(`data: ${req.query.area}&${time} ${msg.msg_type} ${msg.area_id} ${msg.address} ${msg.data}<br/>\n\n`);
+					res.write(`data: ${req.params.area}&${time} ${msg.msg_type} ${msg.area_id} ${msg.address} ${msg.data}<br/>\n\n`);
 				  } else if  ((msg.msg_type == "CA")&&(!(req.query.type)||(req.query.type==msg.msg_type))) {
-					res.write(`data: ${req.query.area}&${time} ${msg.msg_type} ${msg.area_id} ${msg.descr} FROM ${msg.from} TO ${msg.to}<br/>\n\n`);
+					res.write(`data: ${req.params.area}&${time} ${msg.msg_type} ${msg.area_id} ${msg.descr} FROM ${msg.from} TO ${msg.to}<br/>\n\n`);
 				  }
 			  }
-			  console.log(msg);
 		  }
 		});
 	});
 });
 
-app.get("/departure_stream", function(req,res) {
+app.get("/departure_stream/:crs", function(req,res) {
 	res.writeHead(200, {
 		'Content-Type': 'text/event-stream',
 		'Cache-Control': 'no-cache',
 		'Connection': 'keep-alive'
 	})
-	const station = req.query.station;
+	const station = req.params.crs;
 	if (station == null) {
 		res.write("data: NO DATA&NO DATA\n\n");
 		res.end();
 		return
 	}
 	const n_services = req.query.top;
-	console.log(station);
 	depboard(res,station,n_services);
 });
 

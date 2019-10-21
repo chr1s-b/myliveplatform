@@ -2,12 +2,12 @@
 <head>
   <script>
   if (!!window.EventSource) {
-    var source = new EventSource('/departure_stream?'+document.URL.split("?")[1])
+	var url = document.URL.split("/");
+    var source = new EventSource("/departure_stream/"+url[url.length-1])
 
     source.addEventListener('message', function(e) {
 	  var d = new Date();
 	  var n = d.toLocaleTimeString();
-	  console.log(e);
 	  var loc = e.data.split("&")[0];
 	  var board = e.data.split("&")[1];
 	  window.document.title = loc;
@@ -35,13 +35,13 @@
     console.log("Your browser doesn't support SSE")
   }
   </script>
-  <link rel="stylesheet" type="text/css" href="../style.css">
+  <link rel="stylesheet" type="text/css" href="/style.css">
 </head>
 <body>
 	<ul id="header">
-	  <li>SSE State: <span id="state"></span></li>
-	  <li>Location: <span id="loc"></span></li>
-	  <li>Last Updated: <span id="last_update"></span></li>
+	  <li>SSE State: <span id="state">Waiting...</span></li>
+	  <li>Location: <span id="loc">Waiting...</span></li>
+	  <li>Last Updated: <span id="last_update">Waiting...</span></li>
 	</ul>
 	<div id="content">
 		<h3><span id="board"></span></h3>
