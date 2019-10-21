@@ -43,20 +43,21 @@ app.get("/signals/:area?", function(req, res) {
 });
 
 app.get("/signal_stream/:area", function(req,res) {
-	res.writeHead(200, {
-		'Content-Type': 'text/event-stream',
-		'Cache-Control': 'no-cache',
-		'Connection': 'keep-alive'
-	});
 	if (!req.params.area) {
 		res.write("data: undefined&NO DATA\n\n");
 		res.end();
 		return;
 	}
-	var destination = `/topic/${req.params.area}` //'/topic/TD_WTV_SIG_AREA';	
+	var destination = `/topic/${req.params.area}` ;	
 	client.connect(function(sessionId) {
 		client.subscribe(destination, function(body, headers) {
-		  // process messages
+			// on connect
+			
+			res.writeHead(200, {
+				'Content-Type': 'text/event-stream',
+				'Cache-Control': 'no-cache',
+				'Connection': 'keep-alive'
+			});
 		  for (msg of JSON.parse(body)) {
 			  msg = msg[Object.keys(msg)[0]];
 			  var time = new Date(msg.time*1000);
@@ -69,6 +70,13 @@ app.get("/signal_stream/:area", function(req,res) {
 			  }
 		  }
 		});
+	},function (err) {
+		// error callback
+		console.log(err.message);
+		if (err.message.includes("not authorized to read from")) {
+			console.log("400 Bad request");
+			res.status(400).end("Bad request");
+		}
 	});
 });
 
