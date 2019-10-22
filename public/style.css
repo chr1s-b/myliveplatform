@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap');
 
 body {
 	font-family: 'Roboto', sans-serif;
@@ -29,4 +30,9 @@ li {
 
 #content {
 	margin-top: 5vh;
+}
+
+#board {
+	font-family: 'Roboto Mono', monospace;
+	white-space: pre-wrap;
 }

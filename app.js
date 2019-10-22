@@ -16,8 +16,7 @@ var client = new Stomp('datafeeds.networkrail.co.uk', 61618, process.env.STOMP_U
 
 
 app.get("/", function(req,res) {
-	res.writeHead(200, {"Content-Type": "text/html"});
-	res.end("<h1>Go to /departures</h1>");
+	res.redirect("/depart/RDG");
 });
 
 app.get('/style.css', function(req, res) {
@@ -107,7 +106,8 @@ function depboard(res, station,n_services) {
 		}
 		var b = `${loc}&`;
 		for (s of services) {
-			b = b + `${s.std} ${s.destination.location.locationName} ${s.etd} ${s.platform} <br/>`;
+			const plat = s.platform || "-"
+			b = b + `${s.std}  ${s.destination.location.locationName.padEnd(25)}  ${plat.padStart(3)}  ${s.etd.padStart(10)}<br/>`;
 		};
 		res.write("data: "+b+"\n\n");
 		setTimeout(() => depboard(res, station,n_services), 10*1000);
